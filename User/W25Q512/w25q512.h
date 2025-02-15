@@ -44,4 +44,8 @@ uint8_t W25Q512ReadReg3(void);
 
 void W25Q512Enter4ByteAddr(void);
 void W25Q512Exit4ByteAddr(void);
+
+void W25Q64SectorErase(uint32_t SectorAddr);
+void W25Q64PageWrite(uint32_t address , uint8_t *buffer, uint16_t size);
+void W25Q64Read(uint32_t address , uint8_t * buffer,uint16_t size);
 #endif

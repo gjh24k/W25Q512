@@ -66,7 +66,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+	uint8_t buffer[4096]={0};
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -94,8 +94,8 @@ int main(void)
 
   W25Q64Init();
 
-
-
+  W25Q64Read(0x3fff000, buffer,4096);
+  app_log("buffer[0] = %d  buffer[4000] = %d",buffer[0],buffer[4000]);
   /* USER CODE END 2 */
 
   /* Infinite loop */

@@ -99,25 +99,66 @@ void W25Q64Init(void)
 
 void W25Q64SectorErase(uint32_t SectorAddr)
 {
-	uint8_t data[3] = {0};
+	uint8_t data[4] = {0};
 	data[0] = W25Q64_Sector_Erase_4KB ;
 	W25Q512WaitBusy();
 
 	W25Q512WriteEnable();
+	Enable_CS();
 	//send command
 	HAL_SPI_Transmit(&hspi1, data, 1, 1000);
 	//send address
-	data[0] = (SectorAddr & 0xff0000) >> 16;
-	data[1] = (SectorAddr & 0xff00) >> 8;
-	data[2] = (SectorAddr & 0xff) ;
-	HAL_SPI_Transmit(&hspi1, data, 3, 1000);
-
+	data[0] = (SectorAddr & 0xff000000) >> 24;
+	data[1] = (SectorAddr & 0xff0000) >> 16;
+	data[2] = (SectorAddr & 0xff00) >> 8;
+	data[3] = (SectorAddr & 0xff) ;
+	HAL_SPI_Transmit(&hspi1, data, 4, 1000);
+	Disable_CS();
 	W25Q512WriteDisable();
 }
 
-void W25Q64Write()
+void W25Q64PageWrite(uint32_t address , uint8_t *buffer, uint16_t size)
 {
+	uint8_t data[4] = {0};
+	data[0] = W25Q64_Page_Program ;
 
+	W25Q512WaitBusy();
+
+	W25Q512WriteEnable();
+	Enable_CS();
+
+	//send command
+	HAL_SPI_Transmit(&hspi1, data, 1, 1000);
+	//send address
+	data[0] = (address & 0xff000000) >> 24;
+	data[1] = (address & 0xff0000) >> 16;
+	data[2] = (address & 0xff00) >> 8;
+	data[3] = (address & 0xff) ;
+	HAL_SPI_Transmit(&hspi1, data, 4, 1000);
+	//send data
+	HAL_SPI_Transmit(&hspi1, buffer, size, 1000);
+	Disable_CS();
+	W25Q512WriteDisable();
 }
 
+void W25Q64Read(uint32_t address , uint8_t * buffer,uint16_t size)
+{
+	uint8_t data[4] = {0};
+	data[0] = W25Q64_Read_Data ;
 
+	W25Q512WaitBusy();
+	Enable_CS();
+
+	//send command
+	HAL_SPI_Transmit(&hspi1, data, 1, 1000);
+	//send address
+	data[0] = (address & 0xff000000) >> 24;
+	data[1] = (address & 0xff0000) >> 16;
+	data[2] = (address & 0xff00) >> 8;
+	data[3] = (address & 0xff) ;
+	HAL_SPI_Transmit(&hspi1, data, 4, 1000);
+	//receive data
+	HAL_SPI_Receive(&hspi1, buffer, size, 1000);
+	Disable_CS();
+
+}
