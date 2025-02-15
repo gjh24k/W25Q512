@@ -37,7 +37,7 @@
 
 
 
-void W25Q64Init(void);
+void W25Q512Init(void);
 
 void W25Q512IDGet(uint8_t *buffer);
 uint8_t W25Q512ReadReg3(void);
@@ -45,7 +45,11 @@ uint8_t W25Q512ReadReg3(void);
 void W25Q512Enter4ByteAddr(void);
 void W25Q512Exit4ByteAddr(void);
 
-void W25Q64SectorErase(uint32_t SectorAddr);
-void W25Q64PageWrite(uint32_t address , uint8_t *buffer, uint16_t size);
-void W25Q64Read(uint32_t address , uint8_t * buffer,uint16_t size);
+void W25Q512SectorErase(uint32_t SectorAddr);
+void W25Q512PageWrite(uint32_t address , uint8_t *buffer, uint16_t size);
+void W25Q512Read(uint32_t address , uint8_t * buffer,uint16_t size);
+void W25Q512BlockErase(uint32_t SectorAddr);
+void W25Q512ChipErase(void);
+
+void W25Q512Test(void);
 #endif

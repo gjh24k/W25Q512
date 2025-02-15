@@ -66,9 +66,9 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	uint8_t buffer[4096]={0};
+
   /* USER CODE END 1 */
-	uint8_t TxBuffer[10] = {1,2,3,4,5,6,77,88,99,100};
+
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
@@ -92,16 +92,9 @@ int main(void)
 
   app_log("right f429");
 
-  W25Q64Init();
+  W25Q512Init();
 
-  W25Q64Read(0x3fff000, buffer,4096);
-  app_log("buffer[0] = %d  buffer[4000] = %d",buffer[0],buffer[4000]);
-
-  W25Q64SectorErase(0);
-  W25Q64PageWrite(0 , TxBuffer, 10);
-  W25Q64Read(0, buffer,10);
-  app_log("buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
-		  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  buffer[7] ,buffer[9]);
+  W25Q512Test();
 
   /* USER CODE END 2 */
 
