@@ -17,7 +17,7 @@ void Disable_CS(void)
 
 void W25Q512WaitBusy(void)
 {
-	uint32_t Timeout = 0xfffff;
+	uint32_t Timeout = 0xffffffff;
 	uint8_t data = W25Q64_Read_Status_register_1;
 	Enable_CS();
 	HAL_SPI_Transmit(&hspi1, &data, 1, 1000);
@@ -30,6 +30,22 @@ void W25Q512WaitBusy(void)
 		else if(Timeout == 1)
 			app_log("W25Q512 ERROR");
 	}
+	Disable_CS();
+}
+
+void W25Q512WakeUp(void)
+{
+	uint8_t data = W25Q64_Erase_Resume;
+	Enable_CS();
+	HAL_SPI_Transmit(&hspi1, &data, 1, 1000);
+	Disable_CS();
+}
+
+void W25Q512PowerDown(void)
+{
+	uint8_t data = W25Q64_Power_down;
+	Enable_CS();
+	HAL_SPI_Transmit(&hspi1, &data, 1, 1000);
 	Disable_CS();
 }
 
@@ -88,7 +104,7 @@ void W25Q512Exit4ByteAddr(void)
 void W25Q512Init(void)
 {
 	uint8_t rxbuff[5]={0,0,0,0,0};
-
+	 W25Q512WakeUp();
 	//得到ID
 	 W25Q512IDGet(rxbuff);
 	 app_log("ID == %x - %x - %x - %x",rxbuff[0],rxbuff[1],rxbuff[2],rxbuff[3]);
@@ -106,7 +122,6 @@ void W25Q512SectorErase(uint32_t SectorAddr)
 {
 	uint8_t data[4] = {0};
 	data[0] = W25Q64_Sector_Erase_4KB ;
-	W25Q512WaitBusy();
 
 	W25Q512WriteEnable();
 	Enable_CS();
@@ -120,13 +135,15 @@ void W25Q512SectorErase(uint32_t SectorAddr)
 	HAL_SPI_Transmit(&hspi1, data, 4, 1000);
 	Disable_CS();
 	W25Q512WriteDisable();
+
+	W25Q512WaitBusy();
 }
 
 void W25Q512BlockErase(uint32_t SectorAddr)
 {
 	uint8_t data[4] = {0};
 	data[0] = W25Q64_Block_Erase_64KB ;
-	W25Q512WaitBusy();
+
 
 	W25Q512WriteEnable();
 	Enable_CS();
@@ -140,17 +157,21 @@ void W25Q512BlockErase(uint32_t SectorAddr)
 	HAL_SPI_Transmit(&hspi1, data, 4, 1000);
 	Disable_CS();
 	W25Q512WriteDisable();
+
+	W25Q512WaitBusy();
 }
 
 void W25Q512ChipErase(void)
 {
 	uint8_t data = W25Q64_Chip_Erase;
-	W25Q512WaitBusy();
+
 
 	W25Q512WriteEnable();
 	Enable_CS();
 	HAL_SPI_Transmit(&hspi1, &data, 1, 1000);
 	Disable_CS();
+
+	W25Q512WaitBusy();
 }
 
 void W25Q512PageWrite(uint32_t address , uint8_t *buffer, uint16_t size)
@@ -158,7 +179,6 @@ void W25Q512PageWrite(uint32_t address , uint8_t *buffer, uint16_t size)
 	uint8_t data[4] = {0};
 	data[0] = W25Q64_Page_Program ;
 
-	W25Q512WaitBusy();
 
 	W25Q512WriteEnable();
 	Enable_CS();
@@ -175,6 +195,9 @@ void W25Q512PageWrite(uint32_t address , uint8_t *buffer, uint16_t size)
 	HAL_SPI_Transmit(&hspi1, buffer, size, 1000);
 	Disable_CS();
 	W25Q512WriteDisable();
+
+	W25Q512WaitBusy();
+
 }
 
 void W25Q512Read(uint32_t address , uint8_t * buffer,uint16_t size)
@@ -182,7 +205,7 @@ void W25Q512Read(uint32_t address , uint8_t * buffer,uint16_t size)
 	uint8_t data[4] = {0};
 	data[0] = W25Q64_Read_Data ;
 
-	W25Q512WaitBusy();
+
 	Enable_CS();
 
 	//send command
@@ -196,6 +219,8 @@ void W25Q512Read(uint32_t address , uint8_t * buffer,uint16_t size)
 	//receive data
 	HAL_SPI_Receive(&hspi1, buffer, size, 1000);
 	Disable_CS();
+
+//	W25Q512WaitBusy();
 }
 
 void W25Q512WriteFree(uint32_t WriteAddr, uint8_t * pBuffer , uint16_t NumByteToWrite)
@@ -277,38 +302,36 @@ void W25Q512Test(void)
 	uint8_t TxBuffer[10] = {1,2,3,4,5,6,77,88,99,100};
 //	W25Q512Read(0x3fff000, buffer,4096);
 //	app_log("valid buffer[0] = %d  buffer[4000] = %d",buffer[0],buffer[4000]);
-//
-//	W25Q512SectorErase(0);
-//	W25Q512PageWrite(0 , TxBuffer, 10);
-//	W25Q512Read(0, buffer,10);
-//	app_log("valid buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
-//																				  buffer[7] ,buffer[9]);
-//	W25Q512SectorErase(0);
-//	W25Q512Read(0, buffer,10);
-//	app_log("no valid buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
-//	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  buffer[7] ,buffer[9]);
-//
-//	W25Q512PageWrite(0xf0000 , TxBuffer, 10);
-//	W25Q512Read(0xf0000, buffer,10);
-//	app_log("valid 0xf0000 buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
-//																			  buffer[7] ,buffer[9]);
-//
-//	W25Q512BlockErase(0xf0000 );
-//	W25Q512Read(0, buffer,10);
-//		app_log("no Block 2 buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
-//			  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  buffer[7] ,buffer[9]);
 
-//	W25Q512ChipErase();
-//	W25Q512Read(0xf0000, buffer,10);
-//	app_log("0xf0000 erase buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
-//																					  buffer[7] ,buffer[9]);
+	W25Q512SectorErase(0);
+	W25Q512PageWrite(0 , TxBuffer, 10);
+	W25Q512Read(0, buffer,10);
+	app_log("PageWrite buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
+																				  buffer[7] ,buffer[9]);
+	W25Q512SectorErase(0);
+	W25Q512Read(0, buffer,10);
+	app_log("SectorErase buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
+	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  buffer[7] ,buffer[9]);
 
-//	W25Q512SectorErase(0);
-//	W25Q512WriteFree(890, TxBuffer , 10);
+	W25Q512PageWrite(0xf0000 , TxBuffer, 10);
+	W25Q512Read(0xf0000, buffer,10);
+	app_log("PageWrite 0xf0000 buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
+																			  buffer[7] ,buffer[9]);
+
+	W25Q512BlockErase(0xf0000 );
+	W25Q512Read(0xf0000, buffer,10);
+	app_log("BlockErase  buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
+			  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  buffer[7] ,buffer[9]);
+
+
+	W25Q512WriteFree(890, TxBuffer , 10);
 	W25Q512Read(890, buffer,10);
-
-	app_log("no valid buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
+	app_log("WriteFree buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
 		  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  buffer[7] ,buffer[9]);
+	W25Q512ChipErase();
+	W25Q512Read(0xf0000, buffer,10);
+	app_log("ChipErase buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
+																						  buffer[7] ,buffer[9]);
 
 }
 

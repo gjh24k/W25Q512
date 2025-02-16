@@ -42,6 +42,9 @@
 
 void W25Q512Init(void);
 
+void W25Q512WakeUp(void);
+void W25Q512PowerDown(void);
+
 void W25Q512IDGet(uint8_t *buffer);
 uint8_t W25Q512ReadReg3(void);
 
