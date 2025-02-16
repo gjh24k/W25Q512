@@ -332,6 +332,10 @@ void W25Q512Test(void)
 	W25Q512Read(0xf0000, buffer,10);
 	app_log("ChipErase buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
 																						  buffer[7] ,buffer[9]);
+	W25Q512Read(890, buffer,10);
+	app_log("890 Erase  buffer[0] = %d  buffer[1] = %d buffer[2] = %d  buffer[3] = %d buffer[7] = %d buffer[9] = %d",buffer[0],buffer[1] ,buffer[2],buffer[3],
+				  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  	  buffer[7] ,buffer[9]);
+
 
 }
 
