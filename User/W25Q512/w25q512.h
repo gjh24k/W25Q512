@@ -36,6 +36,9 @@
 #define W25Q64_Octal_Word_Read_Quad_IO				      0xE3
 
 
+#define SPI_FLASH_PageSize 256
+
+
 
 void W25Q512Init(void);
 
@@ -50,6 +53,8 @@ void W25Q512PageWrite(uint32_t address , uint8_t *buffer, uint16_t size);
 void W25Q512Read(uint32_t address , uint8_t * buffer,uint16_t size);
 void W25Q512BlockErase(uint32_t SectorAddr);
 void W25Q512ChipErase(void);
+
+void W25Q512WriteFree(uint32_t WriteAddr, uint8_t * pBuffer , uint16_t NumByteToWrite);
 
 void W25Q512Test(void);
 #endif
