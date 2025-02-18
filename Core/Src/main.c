@@ -20,7 +20,7 @@
 #include "main.h"
 #include "spi.h"
 #include "gpio.h"
-
+#include "Test1.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "w25q512.h"
@@ -92,9 +92,12 @@ int main(void)
 
   app_log("right f429");
 
-  W25Q512Init();
+//  W25Q512Init();
+//  W25Q512Test();
+  FatfsTest();
 
-  W25Q512Test();
+
+
 
   /* USER CODE END 2 */
 
