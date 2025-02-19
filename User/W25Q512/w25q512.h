@@ -58,6 +58,6 @@ void W25Q512BlockErase(uint32_t SectorAddr);
 void W25Q512ChipErase(void);
 
 void W25Q512WriteFree(uint32_t WriteAddr, uint8_t * pBuffer , uint16_t NumByteToWrite);
-
+void W25Q512MultipageWrite(uint32_t address , uint8_t *buffer, uint16_t size);
 void W25Q512Test(void);
 #endif

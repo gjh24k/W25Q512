@@ -12,7 +12,7 @@
 #include "w25q512.h"
 //#include "stm32f4xx_hal.h"
 /* Definitions of physical drive number for each drive */
-//#define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
+#define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
 #define DEV_MMC		1	/* Example: Map MMC/SD card to physical drive 1 */
 #define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
 
@@ -72,7 +72,7 @@ DRESULT disk_read (
 		uint32_t addr = sector * SECTOR_SIZE;
 		for(int i = 0; i < count ; i++)
 		{
-			W25Q512Read(addr , buff , SECTOR_SIZE);
+			W25Q512Read(addr , buff , SECTOR_SIZE);  //SECTOR_SIZE == 4096
 			addr += SECTOR_SIZE;
 			buff += SECTOR_SIZE;
 		}
@@ -106,8 +106,9 @@ DRESULT disk_write (
 			for(int i = 0; i < count ; i++)
 			{
 				W25Q512SectorErase(addr);
-//				W25Q512PageWrite(addr , (uint8_t *)buff , SECTOR_SIZE);
-				W25Q512WriteFree(addr , (uint8_t *)buff , SECTOR_SIZE);
+
+//				W25Q512WriteFree(addr , (uint8_t *)buff , SECTOR_SIZE); //SECTOR_SIZE == 4096
+				W25Q512MultipageWrite(addr , (uint8_t *)buff,SECTOR_SIZE);
 				addr += SECTOR_SIZE;
 				buff += SECTOR_SIZE;
 			}

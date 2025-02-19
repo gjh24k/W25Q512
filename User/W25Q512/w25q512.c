@@ -174,6 +174,7 @@ void W25Q512ChipErase(void)
 	W25Q512WaitBusy();
 }
 
+//可以限定写多少从哪里开始写，但是只能少于256
 void W25Q512PageWrite(uint32_t address , uint8_t *buffer, uint16_t size)
 {
 	uint8_t data[4] = {0};
@@ -197,8 +198,38 @@ void W25Q512PageWrite(uint32_t address , uint8_t *buffer, uint16_t size)
 	W25Q512WriteDisable();
 
 	W25Q512WaitBusy();
-
 }
+
+//最少写256byte，可以写多页，只能从扇开始写，匹配fatfs
+void W25Q512MultipageWrite(uint32_t address , uint8_t *buffer, uint16_t size)
+{
+	uint16_t PageCnt = size / 256;
+	uint8_t data[4] = {0};
+	uint8_t Command = W25Q64_Page_Program;
+
+	while(PageCnt--)
+	{
+		W25Q512WriteEnable();
+		Enable_CS();
+
+		//send command
+		HAL_SPI_Transmit(&hspi1, &Command, 1, 1000);
+		//send address
+		data[0] = (address & 0xff000000) >> 24;
+		data[1] = (address & 0xff0000) >> 16;
+		data[2] = (address & 0xff00) >> 8;
+		data[3] = (address & 0xff) ;
+		HAL_SPI_Transmit(&hspi1, data, 4, 1000);
+		//send data
+		HAL_SPI_Transmit(&hspi1, buffer, 256, 1000);
+		Disable_CS();
+		W25Q512WriteDisable();
+		address += 256;
+		buffer += 256;
+		W25Q512WaitBusy();
+	}
+}
+
 
 void W25Q512Read(uint32_t address , uint8_t * buffer,uint16_t size)
 {

@@ -92,12 +92,12 @@ int main(void)
 
   app_log("right f429");
 
-//  W25Q512Init();
-//  W25Q512Test();
-  FatfsTest();
+  W25Q512Init();
 
-
-
+//  ReadFileCatalogue();
+//  FatfsFormat();
+//  FatfsTest();
+  ReadFileCatalogue();
 
   /* USER CODE END 2 */
 
