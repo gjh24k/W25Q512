@@ -32,6 +32,21 @@ void FatfsTest(void)
 	app_log("f_size(&fil)= %d",f_size(&fil));
 	f_close(&fil);
 }
+
+void FatfsTestSD(void)
+{
+	BYTE work[FF_MAX_SS];
+	FRESULT res;
+
+	res = f_mkfs("2:", 0, work, sizeof(work));
+	app_log("f_mkfs 2 res = %d",res);
+
+	res = f_mount(&fs, "2:", 1);
+	app_log("f_mount 2 res = %d",res);
+
+}
+
+
 void FatfsFormat(void)
 {
 	BYTE work[FF_MAX_SS];
@@ -75,6 +90,39 @@ void ReadFileCatalogue(void)
 }
 
 
+void LowFatfsTestSD(void)
+{
+	uint16_t i = 0;
+	uint8_t buffer[1500] = {0};
+
+
+	disk_read(2,buffer,1,2);
+
+	for( i = 0; i<1000 ; i++)
+	{
+		buffer[i] = i;
+	}
+	disk_write(2,buffer,1,2);
+
+	for( i = 0; i<1000 ; i++)
+	{
+		buffer[i] = 0;
+	}
+
+	disk_read(2,buffer,1,2);
+
+	for( i = 0; i<1000 ; i++)
+	{
+		buffer[i] = 55;
+	}
+	disk_write(2,buffer,1,2);
+	for( i = 0; i<1000 ; i++)
+	{
+		buffer[i] = 0;
+	}
+	disk_read(2,buffer,1,2);
+
+}
 
 void LowFatfsTest(void)
 {

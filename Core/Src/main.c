@@ -27,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include "w25q512.h"
 #include "SD.h"
+#include "Test1.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -99,13 +100,14 @@ int main(void)
   app_log("right f429");
 
   W25Q512Init();
-
+  FatfsTestSD();
+//  Check_SD_Capacity();
 //  ReadFileCatalogue();
 //  FatfsFormat();
 //  FatfsTest();
 //  ReadFileCatalogue();
-   SDTest();
-
+//   SDTest();
+//  LowFatfsTestSD();
 
   /* USER CODE END 2 */
 

@@ -10,12 +10,13 @@
 #include "ff.h"			/* Obtains integer types */
 #include "diskio.h"		/* Declarations of disk functions */
 #include "w25q512.h"
+#include "SD.h"
 //#include "stm32f4xx_hal.h"
 /* Definitions of physical drive number for each drive */
-#define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
-#define DEV_MMC		1	/* Example: Map MMC/SD card to physical drive 1 */
-#define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
-
+//#define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
+//#define DEV_MMC		1	/* Example: Map MMC/SD card to physical drive 1 */
+//#define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
+#define DEV_SDIO_FLASH 2
 #define DEV_SPI_FLASH 3
 
 #define SECTOR_SIZE     4096
@@ -66,18 +67,23 @@ DRESULT disk_read (
 )
 {
 
-	switch (pdrv) {
+	switch (pdrv)
+	{
 
-	case DEV_SPI_FLASH :
-		uint32_t addr = sector * SECTOR_SIZE;
-		for(int i = 0; i < count ; i++)
-		{
-			W25Q512Read(addr , buff , SECTOR_SIZE);  //SECTOR_SIZE == 4096
-			addr += SECTOR_SIZE;
-			buff += SECTOR_SIZE;
-		}
-		return RES_OK;
+		case DEV_SPI_FLASH :
+			uint32_t addr = sector * SECTOR_SIZE;
+			for(int i = 0; i < count ; i++)
+			{
+				W25Q512Read(addr , buff , SECTOR_SIZE);  //SECTOR_SIZE == 4096
+				addr += SECTOR_SIZE;
+				buff += SECTOR_SIZE;
+			}
+			return RES_OK;
+		case DEV_SDIO_FLASH :
+			ReadSDCardDMA(buff,sector,count);
+			return RES_OK;
 	}
+
 
 	return RES_PARERR;
 }
@@ -113,6 +119,9 @@ DRESULT disk_write (
 				buff += SECTOR_SIZE;
 			}
 			return RES_OK;
+	case DEV_SDIO_FLASH :
+			WriteSDCardDMA((uint8_t *)buff,sector,count);
+			return RES_OK;
 	}
 
 	return RES_PARERR;
@@ -132,21 +141,33 @@ DRESULT disk_ioctl (
 )
 {
 
-	switch (pdrv) {
+	switch (pdrv)
+	{
+		case DEV_SPI_FLASH :
+			switch(cmd)
+			{
+			case CTRL_SYNC:
+				return RES_OK;
+			case GET_SECTOR_COUNT:
+				*(DWORD *)buff = 16384;
+				return RES_OK;
+			case GET_SECTOR_SIZE:
+				*(WORD*)buff = SECTOR_SIZE;
+				return RES_OK;
+			}
+		case DEV_SDIO_FLASH :
+				switch(cmd)
+				{
+				case CTRL_SYNC:
+					return RES_OK;
+				case GET_SECTOR_COUNT:
+					*(DWORD *)buff = 29512 * 1024 / 512 * 1024 ;
+					return RES_OK;
+				case GET_SECTOR_SIZE:
+					*(WORD*)buff = 512;
+					return RES_OK;
+				}
 
-
-	case DEV_SPI_FLASH :
-		switch(cmd)
-		{
-		case CTRL_SYNC:
-			return RES_OK;
-		case GET_SECTOR_COUNT:
-			*(DWORD *)buff = 16384;
-			return RES_OK;
-		case GET_SECTOR_SIZE:
-			*(WORD*)buff = SECTOR_SIZE;
-			return RES_OK;
-		}
 
 	}
 

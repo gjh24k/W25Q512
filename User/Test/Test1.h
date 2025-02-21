@@ -4,10 +4,12 @@
 
 #define app_log(...)          rtt_print(__FILE__, __FUNCTION__, __VA_ARGS__)
 
+void FatfsTestSD(void);
+
 void FatfsFormat(void);
 void FatfsTest(void);
 void ReadFileCatalogue(void);
 
 void LowFatfsTest(void);
-
+void LowFatfsTestSD(void);
 #endif

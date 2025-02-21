@@ -1,8 +1,8 @@
-#include "../TF/SD.h"
+#include "SD.h"
 
 #include "rtt_log.h"
 #include "debug_cmd.h"
-
+#include "stdio.h"
 #include "sdio.h"
 
 volatile uint8_t RxCplt = 0;
@@ -92,6 +92,49 @@ void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
 void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
 {
 	Abortf = 1;
+}
+
+void Check_SD_Capacity(void)
+{
+    HAL_SD_CardInfoTypeDef SDCardInfo;  // 定义 SD 卡信息结构体
+    char buffer[50];  // 用于存储字符串
+
+    // 确保 SD 卡已初始化
+    if (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER)
+    {
+    	app_log("SD Card is not ready!\n");
+        return;
+    }
+
+    // 获取 SD 卡信息
+    if (HAL_SD_GetCardInfo(&hsd, &SDCardInfo) != HAL_OK)
+    {
+    	app_log("Failed to get SD card info!\n");
+        return;
+    }
+
+    // 计算总容量（以字节为单位）
+    uint64_t capacity = (uint64_t)SDCardInfo.BlockNbr * (uint64_t)SDCardInfo.BlockSize;
+
+    // 输出基本信息
+    sprintf(buffer, "Block Size: %lu bytes\n", SDCardInfo.BlockSize);
+    app_log(buffer);
+    sprintf(buffer, "Block Number: %lu\n", SDCardInfo.BlockNbr);
+    app_log(buffer);
+    sprintf(buffer, "Total Capacity: %llu bytes\n", capacity);
+    app_log(buffer);
+
+    // 转换为 MB（整数部分和小数部分分开）
+    uint32_t capacity_MB = capacity / (1024 * 1024);  // 整数部分（MB）
+    uint32_t capacity_MB_remainder = ((capacity % (1024 * 1024)) * 100) / (1024 * 1024);  // 小数部分（两位精度）
+    sprintf(buffer, "Total Capacity: %lu.%02lu MB\n", capacity_MB, capacity_MB_remainder);
+    app_log(buffer);
+
+    // 转换为 GB（整数部分和小数部分分开）
+    uint32_t capacity_GB = capacity / (1024 * 1024 * 1024);  // 整数部分（GB）
+    uint32_t capacity_GB_remainder = ((capacity % (1024 * 1024 * 1024)) * 100) / (1024 * 1024 * 1024);  // 小数部分（两位精度）
+    sprintf(buffer, "Total Capacity: %lu.%02lu GB\n", capacity_GB, capacity_GB_remainder);
+    app_log(buffer);
 }
 
 void SDTest(void)
