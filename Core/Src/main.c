@@ -100,9 +100,9 @@ int main(void)
   W25Q512Init();
   app_log("right f429");
 
-
 //  SDToFlashTest();
   TraversalDirectory("1:");
+//  TraversalDirectory("0:");
 //  ReadFileCatalogue();
 
   /* USER CODE END 2 */

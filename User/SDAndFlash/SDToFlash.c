@@ -31,7 +31,7 @@ void SDToFlashTest(void)
 	app_log("f_mount Flash (1:) res = %d\n", res);
 	if (res != FR_OK) return;
 //	CopyFile("1:test.txt", "0:test.txt");
-	CopyDirectory("1:test2.txt", "0:test2.txt", 4);
+	CopyDirectory("0:usertotest", "1:usertotest", 0);
 }
 
 
