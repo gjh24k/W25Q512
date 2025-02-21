@@ -3,7 +3,7 @@
 
 
 #define app_log(...)          rtt_print(__FILE__, __FUNCTION__, __VA_ARGS__)
-
+void FatfsSDCardAndW25Q512(void);
 void FatfsTestSD(void);
 
 void FatfsFormat(void);

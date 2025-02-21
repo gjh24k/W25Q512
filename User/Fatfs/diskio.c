@@ -16,8 +16,8 @@
 //#define DEV_RAM		0	/* Example: Map Ramdisk to physical drive 0 */
 //#define DEV_MMC		1	/* Example: Map MMC/SD card to physical drive 1 */
 //#define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
-#define DEV_SDIO_FLASH 2
-#define DEV_SPI_FLASH 3
+#define DEV_SDIO_FLASH 0
+#define DEV_SPI_FLASH 1
 
 #define SECTOR_SIZE     4096
 /*-----------------------------------------------------------------------*/

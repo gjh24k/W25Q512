@@ -28,6 +28,7 @@
 #include "w25q512.h"
 #include "SD.h"
 #include "Test1.h"
+#include "SDToFlash.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,18 +97,13 @@ int main(void)
   MX_SPI1_Init();
   MX_SDIO_SD_Init();
   /* USER CODE BEGIN 2 */
-
+  W25Q512Init();
   app_log("right f429");
 
-  W25Q512Init();
-  FatfsTestSD();
-//  Check_SD_Capacity();
+
+//  SDToFlashTest();
+  TraversalDirectory("1:");
 //  ReadFileCatalogue();
-//  FatfsFormat();
-//  FatfsTest();
-//  ReadFileCatalogue();
-//   SDTest();
-//  LowFatfsTestSD();
 
   /* USER CODE END 2 */
 
